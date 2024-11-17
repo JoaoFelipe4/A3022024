@@ -1,9 +1,14 @@
 const pet= require("../model/writeModel");
 const user = require("../model/user");
-const multer = require('multer');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+const sharp = require('sharp');
 
 const s3 = require('@aws-sdk/client-s3');
+const s3URL = require('@aws-sdk/s3-request-presigner');
+const { json } = require("express");
+
+const randomImageName = (bytes = 32) => crypto.randomBytes(bytes).toString('hex');
 
 const awsBucketName = process.env.AWS_BUCKET_NAME;
 const awsBucketRegion = process.env.AWS_BUCKET_REGION;
@@ -19,23 +24,37 @@ const mys3 = new s3.S3Client({
 });
 
 class writeController {
+
   async storePet(req, res) {
+
+    const buffer = await sharp(req.file.buffer).resize({height:1920, width:1080, fit: "contain"}).toBuffer();
 
     const params = {
       Bucket:awsBucketName,
-      Key:req.file.originalname,
-      Body:req.file.buffer,
+      Key: randomImageName(),
+      Body: buffer,
       ContentType:req.file.mimtype
     };
+
+    const PET = {
+      ...JSON.parse(req.body.data),
+      image: randomImageName()
+    };
+
+    const newPetInfo = new pet(PET);
+    
+    const nPet = await pet.create(newPetInfo);
+
+    //console.log(JSON.parse(req.body.data));
 
     const command = new s3.PutObjectCommand(params);
 
     await mys3.send(command);
 
-    const data = await pet.create(req.body);
 
-    return res.json(data);
+    return res.json(nPet);
   }
+
   async storeUser(req, res) {
     try {
     
@@ -55,12 +74,28 @@ class writeController {
     
     
   }
+
   async index(req, res) {
 
     const data = await pet.find({});
 
+    for (const post of data){
+
+
+    const getObjectParams = {
+      Bucket:awsBucketName,
+      Key: post.image
+    };
+
+    const command = new s3.GetObjectCommand(getObjectParams);
+    const url = await s3URL.getSignedUrl(mys3 , command, {expiresIn: 3600});
+    post.imageUrl = url;
+    
+    }
+
     return res.json(data);
   }
+
 }
 
 module.exports = new writeController();

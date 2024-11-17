@@ -4,7 +4,9 @@ const petSchema = mongoose.Schema({
     name: String,
     local: String,
     dono: String,
-    dataDes: Date
+    dataDes: Date,
+    image: String,
+    imageUrl: String
 },{timestamps:true})
 
 module.exports = mongoose.model('pet',petSchema)
