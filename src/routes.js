@@ -9,7 +9,9 @@ const upload = multer({ storage: storage });
 
 
 
-routes.get("/", writeController.index);
+routes.get("/pets/main", writeController.index);
+
+routes.delete("/pets/delete/:id", writeController.deletePet);
 
 routes.post("/newPet", upload.single('image'), writeController.storePet);
 

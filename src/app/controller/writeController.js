@@ -29,16 +29,18 @@ class writeController {
 
     const buffer = await sharp(req.file.buffer).resize({height:1920, width:1080, fit: "contain"}).toBuffer();
 
+    const imageName = randomImageName();
+
     const params = {
       Bucket:awsBucketName,
-      Key: randomImageName(),
+      Key: imageName,
       Body: buffer,
       ContentType:req.file.mimtype
     };
 
     const PET = {
       ...JSON.parse(req.body.data),
-      image: randomImageName()
+      image: imageName
     };
 
     const newPetInfo = new pet(PET);
@@ -73,6 +75,28 @@ class writeController {
     }
     
     
+  }
+
+  async deletePet(req, res) {
+
+    const post = await pet.findOne({_id:req.params.id}).exec();
+
+    if (!post) {
+      res.status(404).send("post not found!");
+      return;
+    }
+
+    const getObjectParams = {
+      Bucket:awsBucketName,
+      Key: post.image
+    };
+
+    const command = new s3.DeleteObjectCommand(getObjectParams);
+    await mys3.send(command);
+
+    await pet.deleteOne({_id:req.params.id});
+
+    res.send(post);
   }
 
   async index(req, res) {
