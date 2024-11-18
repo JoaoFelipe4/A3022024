@@ -30,7 +30,7 @@ class writeController {
     const buffer = await sharp(req.file.buffer).resize({height:1920, width:1080, fit: "contain"}).toBuffer();
 
     const imageName = randomImageName();
-
+   
     const params = {
       Bucket:awsBucketName,
       Key: imageName,
@@ -47,7 +47,6 @@ class writeController {
     
     const nPet = await pet.create(newPetInfo);
 
-    //console.log(JSON.parse(req.body.data));
 
     const command = new s3.PutObjectCommand(params);
 
