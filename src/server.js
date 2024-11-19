@@ -3,7 +3,7 @@ const db = require("./database/config");
 const mongoose = require("mongoose");
 const dotenv = require('dotenv');
 
-dotenv.config({ path: "./.env" });
+dotenv.config({ path: "../.env" });
 
 class App {
   constructor() {
