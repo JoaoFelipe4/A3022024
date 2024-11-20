@@ -4,8 +4,8 @@ const petSchema = mongoose.Schema({
     name: String,
     local: String,
     dono: String,
-    lat: Float64Array,
-    lng: Float64Array,
+    lat: mongoose.Types.Decimal128,
+    lng: mongoose.Types.Decimal128,
     dataDes: Date,
     image: String,
     imageUrl: String
