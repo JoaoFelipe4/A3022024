@@ -6,6 +6,7 @@ const petSchema = mongoose.Schema({
     dono: String,
     lat: mongoose.Types.Decimal128,
     lng: mongoose.Types.Decimal128,
+    comentario: String,
     dataDes: Date,
     image: String,
     imageUrl: String
